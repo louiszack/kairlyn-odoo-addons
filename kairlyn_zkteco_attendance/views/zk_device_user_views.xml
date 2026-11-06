@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_device_user_list" model="ir.ui.view">
+        <field name="name">kairlyn.zk.device.user.list</field>
+        <field name="model">kairlyn.zk.device.user</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" create="0" decoration-warning="state == 'pending'"
+                  decoration-muted="state == 'ignored'" decoration-danger="name_changed or reenrolled">
+                <header>
+                    <button name="action_match_by_name" type="object" string="按姓名匹配员工"
+                            display="always" class="btn-primary"
+                            groups="hr_attendance.group_hr_attendance_manager"
+                            title="设备上的姓名与员工姓名完全一致、且只有一个同名员工时自动关联。未勾选时处理当前列表中的全部待匹配用户。"/>
+                </header>
+                <field name="device_id" readonly="1"/>
+                <field name="user_code"/>
+                <field name="name"/>
+                <field name="employee_id" options="{'no_create': True}"/>
+                <field name="note" optional="show"/>
+                <field name="ignored" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'mapped'"
+                       decoration-warning="state == 'pending'"/>
+                <field name="present_on_device" optional="show"/>
+                <field name="name_changed" optional="show" widget="boolean" readonly="1"/>
+                <field name="reenrolled" optional="show" widget="boolean" readonly="1"/>
+                <field name="punch_count" optional="show"/>
+                <field name="first_punch_at" optional="show"/>
+                <field name="last_punch_at" optional="show"/>
+                <field name="company_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_device_user_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.device.user.form</field>
+        <field name="model">kairlyn.zk.device.user</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_match_by_name" type="object" string="按姓名匹配员工"
+                            invisible="state != 'pending'" groups="hr_attendance.group_hr_attendance_manager"/>
+                    <button name="action_mark_reviewed" type="object" string="已核实"
+                            invisible="not name_changed and not reenrolled"
+                            groups="hr_attendance.group_hr_attendance_manager"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_punches" type="object" class="oe_stat_button" icon="fa-hand-pointer-o">
+                            <field name="punch_count" widget="statinfo" string="打卡记录"/>
+                        </button>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not name_changed">
+                        设备上该编号的姓名发生过变化，请在下方消息记录中核实，确认无误后点击“已核实”。
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not reenrolled">
+                        该编号在设备上被删除后又重新登记过，请在下方消息记录中核实是否仍是同一人，确认无误后点击“已核实”。
+                        如果已换成另一个人，请记下更换日期并联系系统维护人员：直接修改员工映射，会把这个编号以前的打卡记录也算到新员工名下。
+                    </div>
+                    <group>
+                        <group string="设备用户">
+                            <field name="device_id" readonly="1"/>
+                            <field name="user_code"/>
+                            <field name="name"/>
+                            <field name="device_uid"/>
+                            <field name="present_on_device"/>
+                            <field name="name_changed" invisible="1"/>
+                            <field name="reenrolled" invisible="1"/>
+                        </group>
+                        <group string="员工映射">
+                            <field name="employee_id" options="{'no_create': True}"/>
+                            <field name="ignored"/>
+                            <field name="note"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                        <group string="时间">
+                            <field name="first_seen_at"/>
+                            <field name="last_seen_at"/>
+                            <field name="first_punch_at"/>
+                            <field name="last_punch_at"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_device_user_search" model="ir.ui.view">
+        <field name="name">kairlyn.zk.device.user.search</field>
+        <field name="model">kairlyn.zk.device.user</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="user_code"/>
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="device_id"/>
+                <filter name="pending" string="待匹配" domain="[('state', '=', 'pending')]"/>
+                <filter name="mapped" string="已匹配" domain="[('state', '=', 'mapped')]"/>
+                <filter name="ignored" string="已忽略" domain="[('state', '=', 'ignored')]"/>
+                <separator/>
+                <filter name="not_on_device" string="设备上已不存在" domain="[('present_on_device', '=', False)]"/>
+                <filter name="needs_review" string="需核实"
+                        domain="['|', ('name_changed', '=', True), ('reenrolled', '=', True)]"/>
+                <group>
+                    <filter name="group_device" string="设备" context="{'group_by': 'device_id'}"/>
+                    <filter name="group_state" string="状态" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_kairlyn_zk_device_user" model="ir.actions.act_window">
+        <field name="name">设备用户映射</field>
+        <field name="res_model">kairlyn.zk.device.user</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">还没有设备用户</p>
+            <p>同步设备后，设备上的用户以及打卡记录中出现过的用户编号会自动出现在这里，再为它们选择对应的员工。</p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="rule_kairlyn_zk_device_company" model="ir.rule">
+            <field name="name">ZKTeco 设备：多公司</field>
+            <field name="model_id" ref="model_kairlyn_zk_device"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_kairlyn_zk_device_user_company" model="ir.rule">
+            <field name="name">ZKTeco 设备用户：多公司</field>
+            <field name="model_id" ref="model_kairlyn_zk_device_user"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_kairlyn_zk_punch_company" model="ir.rule">
+            <field name="name">ZKTeco 打卡记录：多公司</field>
+            <field name="model_id" ref="model_kairlyn_zk_punch"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_kairlyn_zk_sync_log_company" model="ir.rule">
+            <field name="name">ZKTeco 同步日志：多公司</field>
+            <field name="model_id" ref="model_kairlyn_zk_sync_log"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+        <record id="rule_kairlyn_zk_attendance_day_company" model="ir.rule">
+            <field name="name">ZKTeco 每日考勤：多公司</field>
+            <field name="model_id" ref="model_kairlyn_zk_attendance_day"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+    </data>
+
+    <!-- 只有“管理自己负责员工出勤”权限的主管：只能看到自己是出勤审批人的员工（与 Odoo 出勤的权限一致） -->
+    <data noupdate="1">
+        <record id="rule_kairlyn_zk_attendance_day_officer" model="ir.rule">
+            <field name="name">ZKTeco 每日考勤：主管只看自己负责的员工</field>
+            <field name="model_id" ref="model_kairlyn_zk_attendance_day"/>
+            <field name="domain_force">[('employee_id.attendance_manager_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('hr_attendance.group_hr_attendance_officer'))]"/>
+        </record>
+        <record id="rule_kairlyn_zk_attendance_day_all" model="ir.rule">
+            <field name="name">ZKTeco 每日考勤：可以管理所有出勤的人看全部</field>
+            <field name="model_id" ref="model_kairlyn_zk_attendance_day"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr_attendance.group_hr_attendance_user'))]"/>
+        </record>
+        <record id="rule_kairlyn_zk_punch_officer" model="ir.rule">
+            <field name="name">ZKTeco 打卡记录：主管只看自己负责的员工</field>
+            <field name="model_id" ref="model_kairlyn_zk_punch"/>
+            <field name="domain_force">[('employee_id.attendance_manager_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('hr_attendance.group_hr_attendance_officer'))]"/>
+        </record>
+        <record id="rule_kairlyn_zk_punch_all" model="ir.rule">
+            <field name="name">ZKTeco 打卡记录：可以管理所有出勤的人看全部</field>
+            <field name="model_id" ref="model_kairlyn_zk_punch"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr_attendance.group_hr_attendance_user'))]"/>
+        </record>
+    </data>
+</odoo>

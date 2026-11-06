@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# 含员工个人信息的数据文件（导入导出用），不要提交
+/*.csv
+/*.xls
+/*.xlsx
+
+# 编辑器
+.vscode/
+.idea/

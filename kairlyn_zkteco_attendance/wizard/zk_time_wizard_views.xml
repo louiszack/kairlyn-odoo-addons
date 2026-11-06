@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_time_wizard_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.time.wizard.form</field>
+        <field name="model">kairlyn.zk.time.wizard</field>
+        <field name="arch" type="xml">
+            <form string="校准设备时间">
+                <div class="alert alert-warning" role="alert" invisible="offset &gt; -3600 and offset &lt; 3600">
+                    设备与服务器相差超过 1 小时，通常是“设备时区”或服务器时间设置不对。请先确认两者都正确，再校准。
+                </div>
+                <p>点击“立即校准”后，会把考勤机的时间设为服务器当前时间（按设备时区换算），不受自动校准阈值的限制。</p>
+                <group>
+                    <field name="device_id"/>
+                    <field name="tz"/>
+                    <field name="device_time"/>
+                    <field name="server_time"/>
+                    <field name="offset"/>
+                </group>
+                <footer>
+                    <button name="action_calibrate" type="object" string="立即校准" class="btn-primary"/>
+                    <button string="取消" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_kairlyn_zk_root" name="ZKTeco" parent="hr_attendance.menu_hr_attendance_root"
+              sequence="50" groups="hr_attendance.group_hr_attendance_officer"/>
+
+    <menuitem id="menu_kairlyn_zk_attendance_day" name="每日考勤" parent="menu_kairlyn_zk_root"
+              action="action_kairlyn_zk_attendance_day" sequence="5"/>
+    <menuitem id="menu_kairlyn_zk_punch" name="原始打卡记录" parent="menu_kairlyn_zk_root"
+              action="action_kairlyn_zk_punch" sequence="10"/>
+    <menuitem id="menu_kairlyn_zk_device_user" name="设备用户映射" parent="menu_kairlyn_zk_root"
+              action="action_kairlyn_zk_device_user" sequence="20"
+              groups="hr_attendance.group_hr_attendance_user"/>
+    <menuitem id="menu_kairlyn_zk_sync_log" name="同步日志" parent="menu_kairlyn_zk_root"
+              action="action_kairlyn_zk_sync_log" sequence="30"
+              groups="hr_attendance.group_hr_attendance_user"/>
+    <menuitem id="menu_kairlyn_zk_device" name="考勤机" parent="menu_kairlyn_zk_root"
+              action="action_kairlyn_zk_device" sequence="40"
+              groups="hr_attendance.group_hr_attendance_user"/>
+    <menuitem id="menu_kairlyn_zk_recompute" name="重新计算考勤" parent="menu_kairlyn_zk_root"
+              action="action_kairlyn_zk_recompute_wizard" sequence="80"
+              groups="hr_attendance.group_hr_attendance_manager"/>
+    <menuitem id="menu_kairlyn_zk_purge" name="清理测试数据 / 上线" parent="menu_kairlyn_zk_root"
+              action="action_kairlyn_zk_purge_wizard" sequence="90"
+              groups="hr_attendance.group_hr_attendance_manager"/>
+</odoo>

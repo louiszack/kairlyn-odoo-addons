@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_device_list" model="ir.ui.view">
+        <field name="name">kairlyn.zk.device.list</field>
+        <field name="model">kairlyn.zk.device</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="last_sync_state == 'failed'" decoration-muted="not active">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="ip_address"/>
+                <field name="port" optional="hide" options="{'enable_formatting': false}"/>
+                <field name="serial_number"/>
+                <field name="auto_sync" widget="boolean_toggle" readonly="1"/>
+                <field name="sync_status" widget="badge"
+                       decoration-info="sync_status in ('queued', 'running')"/>
+                <field name="last_sync_at"/>
+                <field name="last_sync_state" widget="badge"
+                       decoration-success="last_sync_state == 'done'"
+                       decoration-danger="last_sync_state == 'failed'"/>
+                <field name="time_offset" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="active" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_device_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.device.form</field>
+        <field name="model">kairlyn.zk.device</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_test_connection" type="object" string="测试连接"
+                            class="btn-secondary" groups="hr_attendance.group_hr_attendance_manager"/>
+                    <button name="action_request_sync" type="object" string="立即同步"
+                            class="btn-primary" invisible="not active or sync_status != 'idle'"
+                            groups="hr_attendance.group_hr_attendance_manager"/>
+                    <button name="action_open_time_wizard" type="object" string="校准设备时间"
+                            class="btn-secondary" groups="hr_attendance.group_hr_attendance_manager"/>
+                    <button name="action_cancel_sync_queue" type="object" string="取消排队"
+                            class="btn-secondary" invisible="sync_status != 'queued'"
+                            groups="hr_attendance.group_hr_attendance_manager"/>
+                    <button name="action_match_users_by_name" type="object" string="按姓名匹配员工"
+                            class="btn-secondary" invisible="not unmapped_user_count"
+                            groups="hr_attendance.group_hr_attendance_manager"/>
+                    <field name="sync_status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_punches" type="object" class="oe_stat_button" icon="fa-hand-pointer-o">
+                            <field name="punch_count" widget="statinfo" string="打卡记录"/>
+                        </button>
+                        <button name="action_view_device_users" type="object" class="oe_stat_button" icon="fa-users">
+                            <div class="o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="device_user_count"/>
+                                    <span class="text-warning" invisible="not unmapped_user_count">
+                                        (<field name="unmapped_user_count"/> 待匹配)
+                                    </span>
+                                </span>
+                                <span class="o_stat_text">设备用户</span>
+                            </div>
+                        </button>
+                        <button name="action_view_sync_logs" type="object" class="oe_stat_button" icon="fa-history"
+                                string="同步日志"/>
+                    </div>
+                    <widget name="web_ribbon" title="已归档" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="例如：一楼大门 xFace600"/></h1>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="sync_cron_active">
+                        “ZKTeco：同步考勤机”定时任务已停用（例如测试数据库在复制时做了中和），点击“立即同步”不会执行。
+                        测试库请直接使用复制过来的打卡数据；正式库请在 设置 → 技术 → 定时任务 中启用它。
+                        <field name="sync_cron_active" invisible="1"/>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="time_offset &gt; -3600 and time_offset &lt; 3600">
+                        设备时间与服务器相差超过 1 小时（具体秒数见“设备信息”页的“时间差”）。
+                        请检查“设备时区”是否与设备时钟所设的时区一致，否则打卡时间会整体偏移。
+                    </div>
+                    <div class="alert alert-danger" role="alert" invisible="last_sync_state != 'failed'">
+                        <strong>最后一次同步失败：</strong> <field name="last_sync_message" class="d-inline"/>
+                    </div>
+                    <group>
+                        <group string="连接">
+                            <field name="connector_type"/>
+                            <field name="ip_address" placeholder="192.168.1.201"/>
+                            <field name="port" options="{'enable_formatting': false}"/>
+                            <field name="comm_password" widget="password"
+                                   groups="hr_attendance.group_hr_attendance_manager"/>
+                            <field name="timeout"/>
+                            <field name="force_udp"/>
+                            <field name="encoding"/>
+                        </group>
+                        <group string="同步">
+                            <field name="tz"/>
+                            <field name="import_start"/>
+                            <field name="auto_sync"/>
+                            <field name="sync_interval" invisible="not auto_sync"/>
+                            <field name="next_sync_at" invisible="not auto_sync"/>
+                            <field name="alert_hours" invisible="not auto_sync"/>
+                            <field name="auto_sync_time"/>
+                            <field name="time_sync_threshold" invisible="not auto_sync_time"/>
+                            <field name="time_sync_max_auto" invisible="not auto_sync_time"/>
+                            <field name="last_time_sync_at"/>
+                            <field name="last_sync_at"/>
+                            <field name="last_sync_state"/>
+                            <field name="last_success_at"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="设备信息" name="device_info">
+                            <group>
+                                <group>
+                                    <field name="serial_number"/>
+                                    <field name="device_model_name"/>
+                                    <field name="firmware_version"/>
+                                    <field name="platform"/>
+                                </group>
+                                <group>
+                                    <field name="device_user_total"/>
+                                    <field name="device_record_total"/>
+                                    <field name="device_record_capacity"/>
+                                    <field name="time_offset"/>
+                                </group>
+                            </group>
+                            <p class="text-muted">
+                                以上信息在“测试连接”或同步时从设备读取。本模块不会删除设备上的记录或修改设备用户；唯一会写入设备的操作是“校准设备时间”。
+                            </p>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_device_search" model="ir.ui.view">
+        <field name="name">kairlyn.zk.device.search</field>
+        <field name="model">kairlyn.zk.device</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="ip_address"/>
+                <field name="serial_number"/>
+                <filter name="failed" string="同步失败" domain="[('last_sync_state', '=', 'failed')]"/>
+                <filter name="archived" string="已归档" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_kairlyn_zk_device" model="ir.actions.act_window">
+        <field name="name">考勤机</field>
+        <field name="res_model">kairlyn.zk.device</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">添加第一台考勤机</p>
+            <p>填写 IP 地址、端口和时区，点击“测试连接”确认通讯正常，再点击“立即同步”导入记录。</p>
+        </field>
+    </record>
+</odoo>

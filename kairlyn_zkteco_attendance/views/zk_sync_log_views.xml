@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_sync_log_list" model="ir.ui.view">
+        <field name="name">kairlyn.zk.sync.log.list</field>
+        <field name="model">kairlyn.zk.sync.log</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0"
+                  decoration-danger="state == 'failed'" decoration-info="state == 'running'">
+                <field name="start_time"/>
+                <field name="device_id"/>
+                <field name="trigger"/>
+                <field name="is_initial" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'done'"
+                       decoration-danger="state == 'failed'"
+                       decoration-info="state == 'running'"/>
+                <field name="fetched_count"/>
+                <field name="new_count"/>
+                <field name="duplicate_count" optional="show"/>
+                <field name="skipped_count" optional="show"/>
+                <field name="new_user_count" optional="show"/>
+                <field name="purged_count" optional="hide"/>
+                <field name="duration"/>
+                <field name="time_adjusted" optional="show"/>
+                <field name="message" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_sync_log_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.sync.log.form</field>
+        <field name="model">kairlyn.zk.sync.log</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="device_id"/>
+                            <field name="trigger"/>
+                            <field name="is_initial"/>
+                            <field name="state"/>
+                            <field name="user_id"/>
+                        </group>
+                        <group>
+                            <field name="start_time"/>
+                            <field name="end_time"/>
+                            <field name="duration"/>
+                            <field name="device_serial"/>
+                            <field name="time_offset"/>
+                            <field name="time_adjusted"/>
+                        </group>
+                        <group string="数量">
+                            <field name="fetched_count"/>
+                            <field name="new_count"/>
+                            <field name="duplicate_count"/>
+                            <field name="skipped_count"/>
+                            <field name="future_count"/>
+                            <field name="new_user_count"/>
+                            <field name="purged_count" invisible="trigger != 'purge'"/>
+                        </group>
+                    </group>
+                    <field name="message" nolabel="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_sync_log_search" model="ir.ui.view">
+        <field name="name">kairlyn.zk.sync.log.search</field>
+        <field name="model">kairlyn.zk.sync.log</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="device_id"/>
+                <filter name="failed" string="失败" domain="[('state', '=', 'failed')]"/>
+                <filter name="with_new" string="有新增" domain="[('new_count', '>', 0)]"/>
+                <separator/>
+                <filter name="start_time" string="开始时间" date="start_time"/>
+                <group>
+                    <filter name="group_device" string="设备" context="{'group_by': 'device_id'}"/>
+                    <filter name="group_state" string="结果" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_kairlyn_zk_sync_log" model="ir.actions.act_window">
+        <field name="name">同步日志</field>
+        <field name="res_model">kairlyn.zk.sync.log</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

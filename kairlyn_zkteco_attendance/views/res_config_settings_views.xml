@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_kairlyn_zk" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.kairlyn.zk</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="hr_attendance.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='hr_attendance']" position="inside">
+                <block title="ZKTeco 考勤规则" name="kairlyn_zk_rules">
+                    <setting string="考勤计算起始日期" company_dependent="1"
+                             help="从这一天开始计算每日考勤结果，留空则不计算。">
+                        <field name="zk_start_date"/>
+                    </setting>
+                    <setting string="出勤记录生成起始日期" company_dependent="1"
+                             help="从这一天起，把签到签退齐全的每日考勤写入 Odoo 出勤记录（仪表盘、出勤报表、加班、按出勤计薪都以它为准）。留空则只计算每日考勤，不生成出勤记录。">
+                        <field name="zk_attendance_start_date"/>
+                        <div class="mt-2">
+                            <button name="action_zk_enable_attendance" type="object" icon="oi-arrow-right"
+                                    string="一键启用（从今天起生成）" class="btn-link"
+                                    invisible="zk_attendance_start_date"
+                                    confirm="确定从今天起把每日考勤生成 Odoo 出勤记录吗？生成后会参与加班计算和按出勤计薪。"/>
+                            <button name="action_zk_disable_attendance" type="object" icon="oi-arrow-right"
+                                    string="停用（已生成的出勤记录保留）" class="btn-link"
+                                    invisible="not zk_attendance_start_date"
+                                    confirm="停用后不再生成和更新出勤记录，已生成的出勤记录保留。确定停用吗？"/>
+                        </div>
+                    </setting>
+                    <setting string="考勤锁定日期" company_dependent="1"
+                             help="这一天及之前：每日考勤不再重新计算；出勤记录（包括手工补录）只有考勤管理员可以新建、修改、删除。加班审批不受影响。">
+                        <field name="zk_lock_date"/>
+                    </setting>
+                    <setting string="迟到 / 早退容忍" company_dependent="1"
+                             help="超过容忍时间才记迟到或早退，记录的分钟数从计划时间起算。">
+                        <div>
+                            <span class="me-2">迟到</span>
+                            <field name="zk_late_grace" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2 me-4">分钟</span>
+                            <span class="me-2">早退</span>
+                            <field name="zk_early_grace" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">分钟</span>
+                        </div>
+                    </setting>
+                    <setting string="旷工规则" company_dependent="1"
+                             help="迟到、早退分别判断，同一天按重的算；0 表示不启用该档。工作日没有打卡、没有请假也没有补录，记旷工一天（只有半天班时记半天）。">
+                        <div>
+                            <span class="me-2">迟到或早退超过</span>
+                            <field name="zk_absent_half_minutes" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">分钟，记旷工半天</span>
+                        </div>
+                        <div>
+                            <span class="me-2">迟到或早退超过</span>
+                            <field name="zk_absent_full_minutes" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">分钟，记旷工一天</span>
+                        </div>
+                    </setting>
+                    <setting string="补录规则" company_dependent="1"
+                             help="在出勤中手工新建或修改出勤记录即为补录，必须选择补卡原因。可以管理所有出勤记录的人事不受次数和期限限制；0 表示不限。">
+                        <div>
+                            <span class="me-2">每人每月“忘记打卡”最多补录</span>
+                            <field name="zk_manual_monthly_limit" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">天</span>
+                        </div>
+                        <div>
+                            <span class="me-2">只能补录最近</span>
+                            <field name="zk_manual_max_days" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">天</span>
+                        </div>
+                    </setting>
+                    <setting string="同步日志保留" company_dependent="1"
+                             help="超过天数的同步、校准时间日志自动删除；清理数据的日志永久保留。">
+                        <div>
+                            <field name="zk_log_keep_days" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">天</span>
+                        </div>
+                    </setting>
+                    <setting string="重复打卡间隔" company_dependent="1"
+                             help="与上一次有效打卡间隔小于此值的打卡视为重复，只保留第一次。">
+                        <div>
+                            <field name="zk_debounce_minutes" class="text-center" style="width: 5ch;"/>
+                            <span class="ms-2">分钟</span>
+                        </div>
+                    </setting>
+                    <setting string="换日时间" company_dependent="1"
+                             help="此时间之前的打卡计入前一个工作日。">
+                        <field name="zk_day_change_hour" widget="float_time" class="text-center" style="width: 8ch;"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

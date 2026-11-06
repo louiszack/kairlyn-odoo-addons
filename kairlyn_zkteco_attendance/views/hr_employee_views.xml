@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_inherit_kairlyn_zk" model="ir.ui.view">
+        <field name="name">hr.employee.form.kairlyn.zk</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_zk_punches" type="object" class="oe_stat_button"
+                        icon="fa-hand-pointer-o" groups="hr_attendance.group_hr_attendance_user">
+                    <field name="zk_punch_count" widget="statinfo" string="打卡记录"/>
+                </button>
+                <button name="action_view_zk_days" type="object" class="oe_stat_button"
+                        icon="fa-calendar-check-o" groups="hr_attendance.group_hr_attendance_user">
+                    <field name="zk_day_exception_count" widget="statinfo" string="考勤异常"/>
+                </button>
+            </div>
+            <xpath expr="//page[@name='hr_settings']" position="inside">
+                <group string="ZKTeco 考勤" name="kairlyn_zk">
+                    <group>
+                        <field name="zk_attendance_required"/>
+                    </group>
+                </group>
+                <field name="zk_device_user_ids" readonly="1" nolabel="1"
+                       groups="hr_attendance.group_hr_attendance_user">
+                    <list>
+                        <field name="device_id"/>
+                        <field name="user_code"/>
+                        <field name="name"/>
+                        <field name="present_on_device"/>
+                        <field name="punch_count"/>
+                        <field name="first_punch_at"/>
+                        <field name="last_punch_at"/>
+                    </list>
+                </field>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_employee_filter_inherit_kairlyn_zk" model="ir.ui.view">
+        <field name="name">hr.employee.search.kairlyn.zk</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter name="zk_not_required" string="不参与考勤"
+                        domain="[('zk_attendance_required', '=', False)]" groups="hr.group_hr_user"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

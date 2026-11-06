@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_kairlyn_zk_device_user,kairlyn.zk.device user,model_kairlyn_zk_device,hr_attendance.group_hr_attendance_user,1,0,0,0
+access_kairlyn_zk_device_manager,kairlyn.zk.device manager,model_kairlyn_zk_device,hr_attendance.group_hr_attendance_manager,1,1,1,1
+access_kairlyn_zk_device_user_user,kairlyn.zk.device.user user,model_kairlyn_zk_device_user,hr_attendance.group_hr_attendance_user,1,0,0,0
+access_kairlyn_zk_device_user_manager,kairlyn.zk.device.user manager,model_kairlyn_zk_device_user,hr_attendance.group_hr_attendance_manager,1,1,0,1
+access_kairlyn_zk_punch_officer,kairlyn.zk.punch officer,model_kairlyn_zk_punch,hr_attendance.group_hr_attendance_officer,1,0,0,0
+access_kairlyn_zk_punch_manager,kairlyn.zk.punch manager,model_kairlyn_zk_punch,hr_attendance.group_hr_attendance_manager,1,0,0,1
+access_kairlyn_zk_sync_log_user,kairlyn.zk.sync.log user,model_kairlyn_zk_sync_log,hr_attendance.group_hr_attendance_user,1,0,0,0
+access_kairlyn_zk_purge_wizard_manager,kairlyn.zk.purge.wizard manager,model_kairlyn_zk_purge_wizard,hr_attendance.group_hr_attendance_manager,1,1,1,1
+access_kairlyn_zk_attendance_day_officer,kairlyn.zk.attendance.day officer,model_kairlyn_zk_attendance_day,hr_attendance.group_hr_attendance_officer,1,0,0,0
+access_kairlyn_zk_recompute_wizard_manager,kairlyn.zk.recompute.wizard manager,model_kairlyn_zk_recompute_wizard,hr_attendance.group_hr_attendance_manager,1,1,1,1
+access_kairlyn_zk_recompute_request_system,kairlyn.zk.recompute.request system,model_kairlyn_zk_recompute_request,base.group_system,1,1,1,1
+access_kairlyn_zk_time_wizard_manager,kairlyn.zk.time.wizard manager,model_kairlyn_zk_time_wizard,hr_attendance.group_hr_attendance_manager,1,1,1,1

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_purge_wizard_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.purge.wizard.form</field>
+        <field name="model">kairlyn.zk.purge.wizard</field>
+        <field name="arch" type="xml">
+            <form string="清理测试数据 / 上线">
+                <div class="alert alert-danger" role="alert">
+                    将永久删除 Odoo 中所选范围内的原始打卡记录，无法恢复。设备上的数据不会受影响。
+                </div>
+                <group>
+                    <group string="清理范围">
+                        <field name="device_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                        <field name="match_count"/>
+                        <field name="remove_unused_users"/>
+                    </group>
+                    <group string="上线">
+                        <field name="go_live"/>
+                        <field name="go_live_date" invisible="not go_live" required="go_live"/>
+                        <field name="set_import_start" invisible="go_live"/>
+                    </group>
+                </group>
+                <div class="alert alert-info" role="alert" invisible="not go_live">
+                    设为上线后：考勤机只导入上线日期之后的记录；每日考勤和 Odoo 出勤记录都从上线日期开始；
+                    上线日期之前的每日考勤和自动生成的出勤记录会被删除（员工映射保留）。
+                </div>
+                <div class="alert alert-warning" role="alert" invisible="not go_live or not manual_attendance_count">
+                    上线日期之前还有 <field name="manual_attendance_count" class="fw-bold"/> 条手工出勤记录（不是考勤机生成的），
+                    不会自动删除，相关的加班也还在。请确认是否需要删除：
+                    <button name="action_view_manual_attendances" type="object" string="查看" class="btn-link p-0"/>
+                </div>
+                <group>
+                    <field name="confirm_text" placeholder="输入“删除”以确认"/>
+                </group>
+                <footer>
+                    <button name="action_purge" type="object" string="删除" class="btn-danger"/>
+                    <button string="取消" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kairlyn_zk_purge_wizard" model="ir.actions.act_window">
+        <field name="name">清理测试数据 / 上线</field>
+        <field name="res_model">kairlyn.zk.purge.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

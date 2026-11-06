@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_attendance_day_list" model="ir.ui.view">
+        <field name="name">kairlyn.zk.attendance.day.list</field>
+        <field name="model">kairlyn.zk.attendance.day</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0"
+                  decoration-danger="is_exception" decoration-info="state == 'ongoing'"
+                  decoration-muted="state == 'rest_work'">
+                <header>
+                    <button name="action_review_confirm" type="object" string="确认生成（请假日打卡）"
+                            groups="hr_attendance.group_hr_attendance_officer"
+                            confirm="确认后，所选请假日按实际打卡生成出勤记录，请假照休，Odoo 会按加班规则计算。员工实际是来上班、不休假的，请到休假中取消或修改请假。确定吗？"/>
+                    <button name="action_review_ignore" type="object" string="忽略（请假日打卡）"
+                            groups="hr_attendance.group_hr_attendance_officer"/>
+                </header>
+                <field name="date"/>
+                <field name="weekday" optional="show"/>
+                <field name="employee_id"/>
+                <field name="department_id" optional="hide"/>
+                <field name="calendar_id" optional="hide"/>
+                <field name="planned_start" optional="show"/>
+                <field name="planned_end" optional="show"/>
+                <field name="check_in"/>
+                <field name="check_out"/>
+                <field name="late_minutes" sum="合计"/>
+                <field name="early_minutes" sum="合计"/>
+                <field name="absent_days" sum="合计" optional="show"/>
+                <field name="worked_hours" widget="float_time" sum="合计"/>
+                <field name="planned_hours" widget="float_time" sum="合计" optional="hide"/>
+                <field name="punch_count" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'normal'"
+                       decoration-warning="state in ('late', 'early', 'late_early')"
+                       decoration-danger="state in ('missing_in', 'missing_out', 'absent')"
+                       decoration-info="state in ('ongoing', 'rest_work')"/>
+                <field name="attendance_status" optional="show" widget="badge"
+                       decoration-success="attendance_status == 'generated'"
+                       decoration-info="attendance_status in ('manual', 'ignored')"
+                       decoration-warning="attendance_status in ('incomplete', 'review', 'deleted')"
+                       decoration-danger="attendance_status == 'error'"/>
+                <field name="review_state" optional="hide"/>
+                <field name="note" optional="show"/>
+                <button name="action_open_manual_attendance" type="object" string="补录" icon="fa-pencil-square-o"
+                        invisible="state not in ('missing_in', 'missing_out', 'absent') or locked or attendance_status == 'manual'"
+                        groups="hr_attendance.group_hr_attendance_officer"/>
+                <field name="is_exception" column_invisible="1"/>
+                <field name="locked" column_invisible="1"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_attendance_day_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.attendance.day.form</field>
+        <field name="model">kairlyn.zk.attendance.day</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <header>
+                    <button name="action_open_manual_attendance" type="object" string="补录出勤" class="btn-primary"
+                            invisible="state not in ('missing_in', 'missing_out', 'absent') or locked or attendance_status == 'manual'"
+                            groups="hr_attendance.group_hr_attendance_officer"/>
+                    <button name="action_regenerate_attendance" type="object" string="重新生成出勤记录"
+                            invisible="attendance_status not in ('deleted', 'error')"
+                            groups="hr_attendance.group_hr_attendance_manager"/>
+                    <button name="action_review_confirm" type="object" string="确认生成" class="btn-primary"
+                            invisible="not leave_conflict or review_state != 'pending' or locked"
+                            groups="hr_attendance.group_hr_attendance_officer"
+                            confirm="确认后按实际打卡生成出勤记录，请假照休，Odoo 会按加班规则计算。员工实际是来上班、不休假的，请到休假中取消或修改请假。确定吗？"/>
+                    <button name="action_review_ignore" type="object" string="忽略"
+                            invisible="not leave_conflict or review_state != 'pending' or locked"
+                            groups="hr_attendance.group_hr_attendance_officer"/>
+                    <button name="action_review_reset" type="object" string="重新审核"
+                            invisible="not leave_conflict or review_state == 'pending' or locked"
+                            groups="hr_attendance.group_hr_attendance_officer"/>
+                    <field name="state" widget="statusbar" statusbar_visible="normal"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="employee_id" readonly="1"/></h1>
+                        <h3><field name="date" readonly="1"/> <field name="weekday" class="ms-2"/></h3>
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="not note">
+                        <field name="note"/>
+                    </div>
+                    <group>
+                        <group string="计划（取自工作时间表）">
+                            <field name="calendar_id"/>
+                            <field name="is_flexible"/>
+                            <field name="planned_start"/>
+                            <field name="planned_end"/>
+                            <field name="planned_hours" widget="float_time"/>
+                        </group>
+                        <group string="实际">
+                            <field name="check_in"/>
+                            <field name="check_out"/>
+                            <field name="worked_hours" widget="float_time"/>
+                            <field name="late_minutes"/>
+                            <field name="early_minutes"/>
+                            <field name="absent_days"/>
+                            <field name="punch_count"/>
+                        </group>
+                        <group string="Odoo 出勤记录">
+                            <field name="attendance_status"/>
+                            <field name="attendance_ids" widget="many2many_tags" invisible="not attendance_ids"/>
+                            <field name="attendance_message" invisible="not attendance_message"/>
+                        </group>
+                        <group string="请假日有打卡" invisible="not leave_conflict">
+                            <field name="leave_conflict" invisible="1"/>
+                            <field name="review_state"/>
+                            <field name="reviewed_by" invisible="not reviewed_by"/>
+                            <field name="reviewed_at" invisible="not reviewed_at"/>
+                        </group>
+                        <group string="其他">
+                            <field name="attendance_required"/>
+                            <field name="is_exception"/>
+                            <field name="locked"/>
+                            <field name="computed_at"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <separator string="当天的原始打卡"/>
+                    <field name="punch_ids" readonly="1">
+                        <list>
+                            <field name="punch_time"/>
+                            <field name="device_id"/>
+                            <field name="user_code"/>
+                            <field name="verify_type_label"/>
+                        </list>
+                    </field>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_attendance_day_search" model="ir.ui.view">
+        <field name="name">kairlyn.zk.attendance.day.search</field>
+        <field name="model">kairlyn.zk.attendance.day</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="calendar_id"/>
+                <filter name="exception" string="异常" domain="[('is_exception', '=', True)]"/>
+                <separator/>
+                <filter name="late" string="迟到" domain="[('state', 'in', ('late', 'late_early'))]"/>
+                <filter name="early" string="早退" domain="[('state', 'in', ('early', 'late_early'))]"/>
+                <filter name="missing" string="缺卡" domain="[('state', 'in', ('missing_in', 'missing_out'))]"/>
+                <filter name="absent" string="缺勤" domain="[('state', '=', 'absent')]"/>
+                <filter name="absent_days" string="旷工" domain="[('absent_days', '>', 0)]"/>
+                <filter name="leave_review" string="请假日有打卡（待审核）" domain="[('review_state', '=', 'pending')]"/>
+                <filter name="rest_work" string="休息日出勤" domain="[('state', '=', 'rest_work')]"/>
+                <filter name="ongoing" string="进行中" domain="[('state', '=', 'ongoing')]"/>
+                <separator/>
+                <filter name="attendance_generated" string="已生成出勤记录" domain="[('attendance_status', '=', 'generated')]"/>
+                <filter name="attendance_manual" string="已手工补录" domain="[('attendance_status', '=', 'manual')]"/>
+                <filter name="attendance_problem" string="出勤记录需处理"
+                        domain="[('attendance_status', 'in', ('incomplete', 'review', 'deleted', 'error'))]"/>
+                <separator/>
+                <filter name="date" string="日期" date="date"/>
+                <group>
+                    <filter name="group_employee" string="员工" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_department" string="部门" context="{'group_by': 'department_id'}"/>
+                    <filter name="group_state" string="状态" context="{'group_by': 'state'}"/>
+                    <filter name="group_attendance_status" string="出勤记录状态" context="{'group_by': 'attendance_status'}"/>
+                    <filter name="group_week" string="周" context="{'group_by': 'date:week'}"/>
+                    <filter name="group_month" string="月份" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_attendance_day_pivot" model="ir.ui.view">
+        <field name="name">kairlyn.zk.attendance.day.pivot</field>
+        <field name="model">kairlyn.zk.attendance.day</field>
+        <field name="arch" type="xml">
+            <pivot string="考勤统计">
+                <field name="employee_id" type="row"/>
+                <field name="date" interval="month" type="col"/>
+                <field name="worked_hours" type="measure" widget="float_time"/>
+                <field name="late_minutes" type="measure"/>
+                <field name="early_minutes" type="measure"/>
+                <field name="absent_days" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_kairlyn_zk_attendance_day" model="ir.actions.act_window">
+        <field name="name">每日考勤</field>
+        <field name="res_model">kairlyn.zk.attendance.day</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="context">{'search_default_date': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">还没有每日考勤结果</p>
+            <p>请先在 考勤 → 配置 → 设置 的“ZKTeco 考勤规则”中设置“考勤计算起始日期”，系统会在后台自动计算。</p>
+        </field>
+    </record>
+</odoo>

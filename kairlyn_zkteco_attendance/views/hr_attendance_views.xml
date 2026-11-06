@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 出勤记录表单：手工补录时选择补卡原因 -->
+    <record id="hr_attendance_view_form_kairlyn_zk" model="ir.ui.view">
+        <field name="name">hr.attendance.form.kairlyn.zk</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.hr_attendance_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="zk_day_id" invisible="1"/>
+                <field name="zk_manual_reason" required="not zk_day_id and in_mode == 'manual'"/>
+                <field name="zk_manual_note" invisible="not zk_manual_reason"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_attendance_tree_kairlyn_zk" model="ir.ui.view">
+        <field name="name">hr.attendance.list.kairlyn.zk</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='check_out']" position="after">
+                <field name="zk_manual_reason" optional="show"/>
+                <field name="zk_manual_note" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_punch_list" model="ir.ui.view">
+        <field name="name">kairlyn.zk.punch.list</field>
+        <field name="model">kairlyn.zk.punch</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-warning="not employee_id">
+                <field name="punch_time"/>
+                <field name="employee_id"/>
+                <field name="user_code"/>
+                <field name="device_user_id" optional="hide"/>
+                <field name="device_id"/>
+                <field name="verify_type_label"/>
+                <field name="punch_state" optional="hide"/>
+                <field name="device_local_time" optional="hide"/>
+                <field name="sync_log_id" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_punch_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.punch.form</field>
+        <field name="model">kairlyn.zk.punch</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="punch_time"/>
+                            <field name="device_local_time"/>
+                            <field name="employee_id"/>
+                            <field name="device_user_id"/>
+                            <field name="user_code"/>
+                        </group>
+                        <group>
+                            <field name="device_id"/>
+                            <field name="verify_type_label"/>
+                            <field name="verify_type"/>
+                            <field name="punch_state"/>
+                            <field name="device_uid"/>
+                            <field name="sync_log_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_punch_search" model="ir.ui.view">
+        <field name="name">kairlyn.zk.punch.search</field>
+        <field name="model">kairlyn.zk.punch</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="user_code"/>
+                <field name="device_id"/>
+                <field name="sync_log_id"/>
+                <filter name="unmapped" string="未匹配员工" domain="[('employee_id', '=', False)]"/>
+                <filter name="mapped" string="已匹配员工" domain="[('employee_id', '!=', False)]"/>
+                <separator/>
+                <filter name="punch_time" string="打卡时间" date="punch_time"/>
+                <group>
+                    <filter name="group_employee" string="员工" context="{'group_by': 'employee_id'}"/>
+                    <filter name="group_user_code" string="设备用户编号" context="{'group_by': 'user_code'}"/>
+                    <filter name="group_device" string="设备" context="{'group_by': 'device_id'}"/>
+                    <filter name="group_day" string="日期" context="{'group_by': 'punch_time:day'}"/>
+                    <filter name="group_month" string="月份" context="{'group_by': 'punch_time:month'}"/>
+                    <filter name="group_verify" string="验证方式" context="{'group_by': 'verify_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_kairlyn_zk_punch_pivot" model="ir.ui.view">
+        <field name="name">kairlyn.zk.punch.pivot</field>
+        <field name="model">kairlyn.zk.punch</field>
+        <field name="arch" type="xml">
+            <pivot string="打卡统计">
+                <field name="employee_id" type="row"/>
+                <field name="punch_time" interval="month" type="col"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_kairlyn_zk_punch" model="ir.actions.act_window">
+        <field name="name">原始打卡记录</field>
+        <field name="res_model">kairlyn.zk.punch</field>
+        <field name="view_mode">list,pivot,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">还没有打卡记录</p>
+            <p>在“考勤机”中添加设备并同步后，原始打卡记录会出现在这里。这些记录只读，不能修改。</p>
+        </field>
+    </record>
+</odoo>

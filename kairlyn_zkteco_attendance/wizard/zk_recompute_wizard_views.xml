@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_kairlyn_zk_recompute_wizard_form" model="ir.ui.view">
+        <field name="name">kairlyn.zk.recompute.wizard.form</field>
+        <field name="model">kairlyn.zk.recompute.wizard</field>
+        <field name="arch" type="xml">
+            <form string="重新计算考勤">
+                <p class="text-muted">
+                    最近 7 天的考勤结果每小时会自动重算。修改了员工的工作时间表、补录了以前的休假或公共假日后，
+                    请在这里手动重算更早的日子。
+                </p>
+                <group>
+                    <field name="employee_ids" widget="many2many_tags" options="{'no_create': True}"
+                           placeholder="留空表示全部员工"/>
+                    <field name="date_from"/>
+                </group>
+                <footer>
+                    <button name="action_recompute" type="object" string="重新计算" class="btn-primary"/>
+                    <button string="取消" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_kairlyn_zk_recompute_wizard" model="ir.actions.act_window">
+        <field name="name">重新计算考勤</field>
+        <field name="res_model">kairlyn.zk.recompute.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>
